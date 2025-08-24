@@ -53,9 +53,6 @@ npm run dev
 http://localhost:3000
 ```
 
-## 👨‍💻 Author
 
-Made with ❤️ by **Aryan Mishra**
-GitHub: [@aryanmishra28](https://github.com/aryanmishra28)
 
 
