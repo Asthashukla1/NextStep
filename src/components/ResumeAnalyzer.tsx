@@ -1,177 +1,194 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
-import { Badge } from "./ui/badge";
 import { useAuth } from "./AuthContext";
 import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
 
-export function ResumeAnalyzer() {
-  const { user } = useAuth();
-  const [selectedFile, setSelectedFile] = React.useState(null);
-  const [analysisData, setAnalysisData] = React.useState(null);
+type Analysis = {
+  score: number;
+  role: string;
+  strengths: { title: string; description: string }[];
+  weaknesses: { title: string; description: string }[];
+};
 
-  const handleFileSelect = (e) => {
+export function ResumeAnalyzer() {
+  const { user } = useAuth() || {};
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [analysisData, setAnalysisData] = useState<Analysis | null>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setAnalysisData(null);
     }
   };
 
   const analyzeResume = () => {
-    if (!selectedFile || !user) return;
-    
-    // Mock analysis
+    if (!selectedFile) return;
+
+    const fileName = selectedFile.name.toLowerCase();
+
+    let score = 60;
+    let strengths: { title: string; description: string }[] = [];
+    let weaknesses: { title: string; description: string }[] = [];
+    let role = "Software Developer";
+
+    if (fileName.includes("react") || fileName.includes("frontend")) {
+      strengths.push({ title: "Frontend Skills", description: "React detected in resume name" });
+      role = "Frontend Developer";
+      score += 10;
+    }
+
+    if (fileName.includes("java") || fileName.includes("python")) {
+      strengths.push({ title: "Programming", description: "Programming language detected" });
+      score += 5;
+    }
+
+    if (!fileName.includes("project")) {
+      weaknesses.push({ title: "Projects", description: "Add projects section" });
+    }
+
+    if (!fileName.includes("experience")) {
+      weaknesses.push({ title: "Experience", description: "Add experience section" });
+    }
+
+    if (strengths.length === 0) {
+      strengths.push({ title: "Resume Uploaded", description: "File recognized successfully" });
+    }
+
     setAnalysisData({
-      score: 78,
-      strengths: [
-        { title: "Technical Skills", description: "Strong programming background" },
-        { title: "Education", description: "Relevant degree highlighted" }
-      ],
-      weaknesses: [
-        { title: "Keywords", description: "Add more industry keywords" },
-        { title: "Experience", description: "Include more details" }
-      ]
+      score,
+      role,
+      strengths,
+      weaknesses
     });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-12">
-          <h1 className="text-4xl font-bold text-gray-900">Resume Analyzer</h1>
-          <p className="text-xl text-gray-600">
-            Get AI-powered insights to improve your resume
-          </p>
+      <div className="max-w-6xl mx-auto px-4">
+
+        {/* TITLE */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold">Resume Analyzer</h1>
+          <p className="text-gray-600">Upload your resume and get feedback</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <Card className="shadow-lg rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Upload className="w-5 h-5 text-purple-600" />
-                  <span>Upload Resume</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center">
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    id="resume-upload"
-                  />
-                  <label htmlFor="resume-upload" className="cursor-pointer">
-                    <FileText className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-gray-700">
-                      {selectedFile ? selectedFile.name : 'Drop your resume here'}
-                    </p>
-                    <p className="text-sm text-gray-500">PDF, DOC, DOCX supported</p>
-                  </label>
-                </div>
-                
-                <Button 
-                  onClick={analyzeResume}
-                  disabled={!selectedFile || !user}
-                  className="w-full bg-gradient-to-r from-[#6A0DAD] to-[#9B4DFF] text-white py-3 rounded-xl"
-                >
-                  Analyze Resume
-                </Button>
-                {!user && (
-                  <p className="text-sm text-center text-gray-500">Sign in to analyze your resume</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        <div className="grid md:grid-cols-3 gap-8">
 
-          <div className="lg:col-span-2 space-y-6">
-            {!analysisData && user && (
-              <Card className="shadow-lg rounded-2xl">
-                <CardContent className="p-12 text-center">
-                  <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900">Upload Your Resume</h3>
-                  <p className="text-gray-600">Get AI-powered insights and recommendations</p>
-                </CardContent>
-              </Card>
-            )}
+          {/* UPLOAD SECTION */}
+          <Card className="rounded-xl shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="w-5 h-5" />
+                Upload Resume
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
 
-            {!user && (
-              <Card className="shadow-lg rounded-2xl">
-                <CardContent className="p-12 text-center">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900">Sign In to Get Started</h3>
-                  <p className="text-gray-600">Create an account to analyze your resume</p>
-                </CardContent>
+              <div className="border-2 border-dashed p-6 text-center rounded-md">
+                <input
+                  type="file"
+                  id="resume-upload"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <label htmlFor="resume-upload" className="cursor-pointer">
+                  <FileText className="w-10 h-10 mx-auto text-purple-500" />
+                  <p className="mt-2 text-sm">
+                    {selectedFile ? selectedFile.name : "Click to upload resume"}
+                  </p>
+                </label>
+              </div>
+
+              <Button
+                disabled={!selectedFile}
+                onClick={analyzeResume}
+                className="w-full"
+              >
+                Analyze Resume
+              </Button>
+
+              {!user && (
+                <p className="text-sm text-center text-gray-500">
+                  (Login optional for now)
+                </p>
+              )}
+
+            </CardContent>
+          </Card>
+
+          {/* RESULT SECTION */}
+          <div className="md:col-span-2">
+
+            {!analysisData && (
+              <Card className="p-10 text-center">
+                <Upload className="mx-auto w-12 h-12 text-gray-400" />
+                <p className="mt-4 text-gray-600">
+                  Upload and analyze your resume
+                </p>
               </Card>
             )}
 
             {analysisData && (
               <>
-                <Card className="shadow-lg rounded-2xl">
+                <Card className="mb-6">
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Overall Score</span>
-                      <div className="text-3xl font-bold text-purple-600">{analysisData.score}/100</div>
+                    <CardTitle className="flex justify-between">
+                      <span>Score</span>
+                      <span className="text-purple-600">
+                        {analysisData.score}/100
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <Progress value={analysisData.score} className="h-3 mb-4" />
-                    <p className="text-gray-600">
-                      Your resume is <span className="font-semibold text-purple-600">above average</span>. 
-                      Follow our suggestions to improve further.
+                    <Progress value={analysisData.score} />
+                    <p className="mt-2 text-sm text-purple-600">
+                      Suggested Role: {analysisData.role}
                     </p>
                   </CardContent>
                 </Card>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="shadow-lg rounded-2xl">
+                <div className="grid md:grid-cols-2 gap-4">
+
+                  {/* STRENGTHS */}
+                  <Card>
                     <CardHeader>
-                      <CardTitle className="text-green-700 flex items-center space-x-2">
-                        <CheckCircle className="w-5 h-5" />
-                        <span>Strengths</span>
+                      <CardTitle className="flex gap-2 text-green-600">
+                        <CheckCircle className="w-4 h-4" />
+                        Strengths
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      {analysisData.strengths.map((strength, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{strength.title}</p>
-                            <p className="text-sm text-gray-600">{strength.description}</p>
-                          </div>
-                        </div>
+                    <CardContent>
+                      {analysisData.strengths.map((item, i) => (
+                        <p key={i}>✔ {item.title}</p>
                       ))}
                     </CardContent>
                   </Card>
 
-                  <Card className="shadow-lg rounded-2xl">
+                  {/* WEAKNESSES */}
+                  <Card>
                     <CardHeader>
-                      <CardTitle className="text-orange-700 flex items-center space-x-2">
-                        <AlertCircle className="w-5 h-5" />
-                        <span>Areas to Improve</span>
+                      <CardTitle className="flex gap-2 text-orange-600">
+                        <AlertCircle className="w-4 h-4" />
+                        Improve
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      {analysisData.weaknesses.map((weakness, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <AlertCircle className="w-4 h-4 text-orange-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{weakness.title}</p>
-                            <p className="text-sm text-gray-600">{weakness.description}</p>
-                          </div>
-                        </div>
+                    <CardContent>
+                      {analysisData.weaknesses.map((item, i) => (
+                        <p key={i}>⚠ {item.title}</p>
                       ))}
                     </CardContent>
                   </Card>
+
                 </div>
               </>
             )}
+
           </div>
         </div>
       </div>

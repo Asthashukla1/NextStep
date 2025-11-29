@@ -14,7 +14,7 @@ export function MentorConnect() {
 
   const mentors = [
     {
-      name: "Sarah Chen",
+      name: "Anupam Shukla",
       title: "Senior Software Engineer",
       company: "Google",
       expertise: ["React", "Node.js", "System Design"],
@@ -27,7 +27,7 @@ export function MentorConnect() {
       available: true
     },
     {
-      name: "Michael Rodriguez",
+      name: "Sanskriti Singh",
       title: "Data Science Manager",
       company: "Meta",
       expertise: ["Python", "Machine Learning", "Analytics"],
@@ -40,7 +40,7 @@ export function MentorConnect() {
       available: false
     },
     {
-      name: "Emily Johnson",
+      name: "Aryan Mishra",
       title: "Product Designer",
       company: "Spotify",
       expertise: ["UI/UX", "Figma", "User Research"],
